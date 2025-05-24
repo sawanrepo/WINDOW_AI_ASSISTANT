@@ -51,8 +51,8 @@ windows-assistant-bot/
 ### 1. Clone the Repository
 
 ```bash
-git clone 
-cd
+git clone https://github.com/sawanrepo/WINDOW_AI_ASSISTANT.git
+cd WINDOW_AI_ASSISTANT
 ```
 
 ### 2. Create Virtual Environment
