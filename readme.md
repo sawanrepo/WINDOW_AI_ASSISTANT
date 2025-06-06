@@ -1,84 +1,78 @@
-# Windows Assistant Bot
+# 🪟 Windows Assistant — Your AI-Powered Desktop Agent
 
-A simple, offline-friendly Windows assistant that understands natural language to either launch installed apps or chat naturally with the user. Built using Python, Gemini API, and a minimal Tkinter-based GUI.
-
----
-
-## Features
-
-* **Natural Language Understanding**: Uses Google Gemini to detect intent — either open an app or chat.
-* **Dynamic App Launcher**: Scans Start Menu `.lnk` shortcuts to fetch available installed apps.
-* **Conversational Chat**: Uses Gemini for friendly natural conversation.
-* **Error Handling**: Gracefully informs if an app is not found.
-* **Lightweight GUI**: Built with Tkinter for user interaction.
+A smart, local-first Windows assistant powered by **Hugging Face-hosted LLMs**, **LangGraph**, and **LangChain tools** — built with Python and a simple GUI in **Tkinter**.
 
 ---
 
-## Technologies Used
+## 📦 Features
 
-* Python 
-* Google Gemini API
-* Tkinter (GUI)
-* Windows OS (for `.lnk` based app scanning)
+| Category              | Capabilities                                                                 |
+|-----------------------|------------------------------------------------------------------------------|
+| 💻 System Interaction | Launch installed apps, control brightness/volume, shutdown/restart system   |
+| 🧠 AI Intelligence     | Chat with an LLM (via Hugging Face API) using ReAct + tools                 |
+| 📸 Screenshots         | Take and auto-name screenshots like `ss_2025-06-06_1930.png`                |
+| 🔋 System Info         | Get CPU, RAM, battery stats                                                 |
+| 🌐 Web Tooling         | Use Tavily API (or similar) for online search queries                       |
+| 🪄 GUI                 | Simple desktop interface using Tkinter                                      |
 
 ---
 
-## File Structure
+## 🗂️ Project Structure
 
 ```bash
-windows-assistant-bot/
-├── assistant/
-│   ├── __init__.py
-│   ├── llm.py                 # Handles LLM communication
-│   ├── app_launcher.py        # Opens apps via Start Menu shortcuts
-│   ├── config.py              # Loads Gemini API key from .env
-├── gui/
-│   ├──__init__.py
-│   ├──launcher.py
-├──utils/
-│    ├── __init__.py
-│    ├── shortcut_scanner.py
-├── main.py                    # Starts the GUI and core logic
-├── requirements.txt           # Required Python packages
-├── .env.temeplate             #change to .env           
-└── README.md                  # This file
+windows_assistant/
+├── .env # 🔐 API keys and model IDs
+├── .env.template #template for .env file.
+├── main.py # 🎯 Entry point to run the assistant
+│
+├── agent/
+│ ├── graph.py # LangGraph agent with ReAct logic
+│ ├── tools.py # All LangChain-compatible system tools
+│ └── prompt.py # ReAct-style prompt templates
+│
+├── core/
+│ ├── app_launcher.py # Open Start Menu apps
+│ ├── system_info.py # CPU, battery, RAM checks
+│ ├── system_control.py # Brightness, volume, shutdown
+│ └── screenshot.py # Save smart-named screenshots
+│
+├── interface/
+│ └── gui.py # Tkinter GUI
+│
+├── config/
+│ └── settings.py # Load environment variables from .env
+│
+├── requirements.txt # All dependencies
+├── .gitignore #files not be pushed .
+└── README.md # Project details.
 ```
 
 ---
 
-## Installation
+## 🚀 Getting Started
 
 ### 1. Clone the Repository
-
 ```bash
-git clone https://github.com/sawanrepo/WINDOW_AI_ASSISTANT.git
-cd WINDOW_AI_ASSISTANT
+git clone https://github.com/yourusername/windows_assistant.git
+cd windows_assistant
 ```
 
 ### 2. Create Virtual Environment
-
 ```bash
 python -m venv venv
-venv\Scripts\activate  # On Windows
+venv\Scripts\activate  # On Windows  source venv/bin/activate for mac /linuix
 ```
-
 ### 3. Install Dependencies
-
 ```bash
 pip install -r requirements.txt
 ```
-
-### 4. Set Gemini API Key
-
-Create a `.env` file and add:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
+### 4. Set Up Environment Variables
+```bash 
+cp .env.template .env # On Windows: copy .env.template .env
 ```
-or rename .env.template to .env and fill required values.
----
+#### Then open .env and fill in the required credentials or keys.
 
-## Usage
+### 5. Usage
 
 Run the assistant:
 
@@ -96,35 +90,11 @@ Try typing commands like:
 The assistant will either launch the app or respond conversationally.
 
 ---
+## 🧠 How It Works
+#### The assistant uses LangGraph + ReAct agent to think step-by-step before taking actions. The LLM is able to:
 
-## Packaging as Executable
+* `Answer basic queries (LLM knowledge)`
 
-To build a `.exe` using PyInstaller:
+* `Use tools like launch_app, take_screenshot, or search_web`
 
-### 1. Install PyInstaller
-
-```bash
-pip install pyinstaller
-```
-
-### 2. Create Executable
-
-```bash
-pyinstaller --onefile --windowed main.py
-```
-
-The compiled `.exe` will be located in the `dist` directory.
-
----
-
-## Contributions
-
-Pull requests are welcome. If you'd like to contribute a feature, tool, or localization, open an issue first to discuss your idea.
-
----
-
-## Contact
-
-Made with ❤️ by Sawan Kumar
-
-* Email: kumarsawan387@gmail.com
+* `Decide on-the-fly using reasoning before calling a tool`
