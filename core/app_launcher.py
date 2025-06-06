@@ -120,8 +120,3 @@ def launch_app(app_name: str) -> dict:
                     except Exception:
                         continue
     return {"status": "not_found", "message": "App not found. It might be in a custom folder or not installed."}
-
-if __name__ == "__main__":
-    app_to_launch = input("Enter app name: ")
-    result = launch_app(app_to_launch)
-    print(result["message"])

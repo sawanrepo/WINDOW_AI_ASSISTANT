@@ -45,7 +45,3 @@ def take_screenshot_tool():
             "message": f"Failed to take screenshot: {str(e)}",
             "file_path": None
         }
-
-if __name__ == "__main__":
-    result = take_screenshot_tool()
-    print(result)
