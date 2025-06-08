@@ -16,23 +16,31 @@ def control_system(action: str):
     elif action == "logoff":
         subprocess.run(["shutdown", "/l"], check=True)
     else:
-        raise ValueError(f"Unsupported action: {action}")
+        return {"status": "error",
+                "message": f"Invalid action '{action}'. Use 'shutdown', 'restart', or 'logoff'."}
 
-
-def set_brightness(level: int) -> str:
+def set_brightness(mode: str, value: int) -> dict:
     try:
-        if level == 0:
-            current = sbc.get_brightness(display=0)[0]
-            new_level = min(current + 10, 100)
+        mode = mode.lower()
+        current = sbc.get_brightness(display=0)[0]
+
+        if mode == "set":
+            new_level = min(max(value, 0), 100)
+        elif mode == "increase":
+            new_level = min(current + value, 100)
+        elif mode == "decrease":
+            new_level = max(current - value, 0)
         else:
-            new_level = min(max(level, 0), 100)
+            return {"status": "error",
+                    "message": f"Invalid mode '{mode}'. Use 'set', 'increase', or 'decrease'."}
+
         sbc.set_brightness(new_level, display=0)
-        return f"Brightness successfully set to {new_level}%."
+        return {"status": "success",
+                "message": f"Brightness successfully set to {new_level}%."}
     except Exception as e:
-        raise RuntimeError(f"Failed to set brightness: {e}")
+        return {"status": "error", "message": f"Failed to set brightness: {e}"}
 
-
-def set_volume(level: int) -> str:
+def set_volume(mode: str, value: int) -> dict:
     try:
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
@@ -40,36 +48,43 @@ def set_volume(level: int) -> str:
         volume = cast(interface, POINTER(IAudioEndpointVolume))
 
         current = volume.GetMasterVolumeLevelScalar() * 100
-        if level == 0:
-            new_level = min(current + 10, 100)
+
+        if mode == "set":
+            new_level = min(max(value, 0), 100)
+        elif mode == "increase":
+            new_level = min(current + value, 100)
+        elif mode == "decrease":
+            new_level = max(current - value, 0)
         else:
-            new_level = min(max(level, 0), 100)
+            return {"status": "error",
+                    "message": f"Invalid mode '{mode}'. Use 'set', 'increase', or 'decrease'."}
 
         volume.SetMasterVolumeLevelScalar(new_level / 100, None)
-        return f"Volume successfully set to {round(new_level)}%."
+        return {"status": "success",
+                "message": f"Volume successfully set to {round(new_level)}%."}
     except Exception as e:
-        raise RuntimeError(f"Failed to set volume: {e}")
+        return {"status": "error", "message": f"Failed to set volume: {e}"}
 
 
-def mute_audio() -> str:
+def mute_audio() -> dict:
     try:
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = cast(interface, POINTER(IAudioEndpointVolume))
         volume.SetMute(1, None)
-        return "System volume has been muted."
+        return {"status": "success", "message": "System volume has been muted."}
     except Exception as e:
-        raise RuntimeError(f"Failed to mute volume: {e}")
+        return {"status": "error", "message": f"Failed to mute volume: {e}"}
 
 
-def unmute_audio() -> str:
+def unmute_audio() -> dict:
     try:
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = cast(interface, POINTER(IAudioEndpointVolume))
         volume.SetMute(0, None)
-        return "System volume has been unmuted."
+        return {"status": "success", "message": "System volume has been unmuted."}  
     except Exception as e:
-        raise RuntimeError(f"Failed to unmute volume: {e}")
+        return {"status": "error", "message": f"Failed to unmute volume: {e}"}

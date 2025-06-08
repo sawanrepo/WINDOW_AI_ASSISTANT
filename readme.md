@@ -28,7 +28,9 @@ windows_assistant/
 ├── agent/
 │ ├── graph.py # LangGraph agent with ReAct logic
 │ ├── tools.py # All LangChain-compatible system tools
+│ ├── schema.py #arguments schemas for tool.
 │ └── prompt.py # ReAct-style prompt templates
+│  
 │
 ├── core/
 │ ├── app_launcher.py # Open Start Menu apps
