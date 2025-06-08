@@ -1,10 +1,16 @@
 from langchain.tools import Tool
 from langgraph.prebuilt import ToolExecutor
-from schema import AppInput, BrightnessInput, VolumeInput, SystemActionInput, StatusInput
+from schema import AppInput, BrightnessInput, VolumeInput, SystemActionInput, StatusInput, WebSearchInput
 from core.app_launcher import launch_app
 from core.screenshot import take_screenshot_tool
 from core.system_control import control_system, set_brightness, set_volume, mute_audio, unmute_audio
 from core.system_info import get_system_status
+from langchain_community.utilities.tavily_search import TavilySearchAPIWrapper
+
+def web_search(query: str):
+    tavily = TavilySearchAPIWrapper()
+    result = tavily.invoke({"query": query})
+    return result
 
 tools = [
 
@@ -60,5 +66,12 @@ tools = [
         args_schema=StatusInput,
         func=lambda args: get_system_status(args.requested)
     ),
+
+    Tool(
+        name="WebSearch",
+        description="Perform a web search using Tavily",
+        args_schema=WebSearchInput,
+        func=lambda args: web_search(args["query"])
+    )
 ]
 tool_executor = ToolExecutor(tools=tools, name="AgentToolExecutor")

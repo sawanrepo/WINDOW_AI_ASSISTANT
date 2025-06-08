@@ -17,3 +17,6 @@ class SystemActionInput(BaseModel):
 
 class StatusInput(BaseModel):
     requested: List[str] = Field(..., description="List of items whose info to be fetched like ['cpu', 'ram', 'battery']")
+
+class WebSearchInput(BaseModel):
+    query: str = Field(..., description="Search query to perform a web search using Tavily")

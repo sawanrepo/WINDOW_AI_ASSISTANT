@@ -16,13 +16,12 @@ Your job is to help the user control system-level tasks and answer technical que
 - Prefer explaining over guessing.
 - When unsure, say "I don't know" rather than guessing.
 - Use tools only when the task cannot be completed with internal knowledge.
-
 """
 
 def generate_tool_guide(tools: List[Tool]) -> str:
     if not tools:
         return ""
-    guide = "\nAvailable tools(Use only when neccessary):\n"
+    guide = "\nAvailable tools (use only when necessary):\n"
     for tool in tools:
         desc = tool.description.strip().rstrip(".")
         guide += f"- {tool.name}: {desc}.\n"
@@ -45,4 +44,14 @@ FEW_SHOT_EXAMPLES = [
 ]
 
 def get_system_prompt(tools: List[Tool]) -> str:
-    return BASE_SYSTEM_PROMPT.strip() + "\n\n" + generate_tool_guide(tools).strip() + "\n\n" + str(FEW_SHOT_EXAMPLES)
+    prompt = BASE_SYSTEM_PROMPT.strip()
+    prompt += "\n\n" + generate_tool_guide(tools).strip()
+    prompt += "\n\nExamples:\n"
+    for ex in FEW_SHOT_EXAMPLES:
+        if "tool" in ex:
+            args = ex.get("args", {})
+            args_str = f" with args {args}" if args else ""
+            prompt += f"- Input: \"{ex['input']}\"\n  -> Use tool: {ex['tool']}{args_str}\n"
+        else:
+            prompt += f"- Input: \"{ex['input']}\"\n  -> Response: {ex['response']}\n"
+    return prompt
