@@ -19,7 +19,7 @@ def control_system(action: str):
         return {"status": "error",
                 "message": f"Invalid action '{action}'. Use 'shutdown', 'restart', or 'logoff'."}
 
-def set_brightness(mode: str, value: int) -> dict:
+def set_brightness(*,mode: str, value: int) -> dict:
     try:
         mode = mode.lower()
         current = sbc.get_brightness(display=0)[0]
@@ -40,7 +40,7 @@ def set_brightness(mode: str, value: int) -> dict:
     except Exception as e:
         return {"status": "error", "message": f"Failed to set brightness: {e}"}
 
-def set_volume(mode: str, value: int) -> dict:
+def set_volume(*,mode: str, value: int) -> dict:
     try:
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()

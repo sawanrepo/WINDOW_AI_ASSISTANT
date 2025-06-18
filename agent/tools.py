@@ -1,63 +1,60 @@
-from langchain.tools import Tool
-from .schema import AppInput, BrightnessInput, VolumeInput, SystemActionInput, StatusInput, WebSearchInput
+from langchain.tools import Tool, StructuredTool
+from .schema import AppInput, StatusInput, SystemActionInput, WebSearchInput
 from core.app_launcher import launch_app
 from core.screenshot import take_screenshot_tool
-from core.system_control import control_system, set_brightness, set_volume, mute_audio, unmute_audio
+from core.system_control import (
+    control_system,
+    set_brightness,
+    set_volume,
+    mute_audio,
+    unmute_audio
+)
 from core.system_info import get_system_status
-from langchain_community.utilities.tavily_search import TavilySearchAPIWrapper
+from langchain_community.tools.tavily_search import TavilySearchResults
 
-# Safe wrapper for web search
 def web_search(query: str):
-    tavily = TavilySearchAPIWrapper()
-    result = tavily.invoke({"query": query})
-    return result
+    return TavilySearchResults().invoke({"query": query})
 
-# Defensive wrapper to support both list and schema input
+# System info wrapper to support list and schema
 def system_info_wrapper(args):
     if isinstance(args, list):
         return get_system_status(args)
     return get_system_status(args.requested)
 
+# App launcher wrapper
 def launch_app_wrapper(args):
-    if isinstance(args, str):  # direct string passed (e.g., "word")
+    if isinstance(args, str):
         name = args
-    elif isinstance(args, dict):  # {"name": "word"}
+    elif isinstance(args, dict):
         name = args.get("name")
-    else:  # Pydantic model
+    else:
         name = args.name
-
     return launch_app(name)
 
-def set_volume_wrapper(args):
-    if isinstance(args, dict):
-        mode = args.get("mode")
-        value = args.get("value")
-    elif isinstance(args, (list, tuple)):  
-        mode, value = args
-    elif hasattr(args, "mode") and hasattr(args, "value"): 
-        mode = args.mode
-        value = args.value
-    else:
-        return {"status": "error", "message": "Invalid input format for SetVolume tool."}
+def safe_web_search_wrapper(args):
+    if hasattr(args, "query"):
+        return web_search(args.query)
+    elif isinstance(args, dict):
+        return web_search(args.get("query"))
+    return web_search(args)
 
-    return set_volume(mode, value)
+def control_system_wrapper(args):
+    try:
+        # Handles Pydantic model
+        if hasattr(args, "action"):
+            return control_system(args.action)
 
-def set_brightness_wrapper(args):
-    if isinstance(args, dict):
-        mode = args.get("mode")
-        value = args.get("value")
-    elif isinstance(args, (list, tuple)):
-        if len(args) == 2:
-            mode, value = args
-        else:
-            return {"status": "error", "message": "Expected 2 arguments for brightness: mode and value."}
-    elif hasattr(args, "mode") and hasattr(args, "value"):
-        mode = args.mode
-        value = args.value
-    else:
-        return {"status": "error", "message": "Invalid input format for SetBrightness tool."}
+        # Handles dict format
+        if isinstance(args, dict) and "action" in args:
+            return control_system(args["action"])
 
-    return set_brightness(mode, value)
+        # Handles direct string fallback
+        if isinstance(args, str):
+            return control_system(args)
+
+        return {"status": "error", "message": "Invalid input for control system."}
+    except Exception as e:
+        return {"status": "error", "message": f"Failed to execute system command: {e}"}
 
 tools = [
     Tool(
@@ -71,45 +68,43 @@ tools = [
     Tool(
         name="TakeScreenshot",
         description="Take a screenshot and save it",
-        func=lambda _: take_screenshot_tool(),  # ✅ fix: accepts dummy input
+        func=lambda _: take_screenshot_tool(),
         return_direct=False
     ),
 
     Tool(
         name="ControlSystem",
-        description="Control system (shutdown, restart, or logoff)",
+        description="Control system (shutdown, restart, or logoff), if u dont get anything return from this tool then it has been excuted successfully",
         args_schema=SystemActionInput,
-        func=lambda args: control_system(args.action) or "Action executed",
+        func=control_system_wrapper,
         return_direct=False
     ),
 
-    Tool(
+    StructuredTool.from_function(
+        set_brightness,
         name="SetBrightness",
-        description="Adjust screen brightness",
-        args_schema=BrightnessInput,
-        func=set_brightness_wrapper,  # ✅ fix: handles both dict and Pydantic model
+        description="Set, increase, or decrease screen brightness",
         return_direct=False
     ),
 
-    Tool(
+    StructuredTool.from_function(
+        set_volume,
         name="SetVolume",
-        description="Adjust system volume",
-        args_schema=VolumeInput,
-        func=set_volume_wrapper,  # ✅ fix: handles both dict and Pydantic model
-        return_direct=False 
+        description="Set, increase, or decrease system volume",
+        return_direct=False
     ),
 
     Tool(
         name="MuteAudio",
         description="Mute system audio",
-        func=lambda _: mute_audio(),  # ✅ fix: accepts dummy input
+        func=lambda _: mute_audio(),
         return_direct=False
     ),
 
     Tool(
         name="UnmuteAudio",
         description="Unmute system audio",
-        func=lambda _: unmute_audio(),  # ✅ fix: accepts dummy input
+        func=lambda _: unmute_audio(),
         return_direct=False
     ),
 
@@ -117,7 +112,7 @@ tools = [
         name="SystemInfo",
         description="Get system status like CPU, RAM, and Battery",
         args_schema=StatusInput,
-        func=system_info_wrapper,  # ✅ fix: handles both list and schema
+        func=system_info_wrapper,
         return_direct=False
     ),
 
@@ -125,7 +120,7 @@ tools = [
         name="WebSearch",
         description="Perform a web search using Tavily",
         args_schema=WebSearchInput,
-        func=lambda args: web_search(args.query),  # ✅ fix: args.query not args["query"]
+        func=safe_web_search_wrapper,
         return_direct=False
     )
-]
+] 

@@ -20,6 +20,7 @@ Your job is to help the user control system-level tasks and answer technical que
 
 Use tools only when needed for tasks like launching apps, changing volume/brightness, system control, or retrieving real-time data.
 Avoid using tools for conversational inputs like greetings or explanations.
+if control_system doesn't return something or error it means the action was successful.
 """
 
 def generate_tool_guide(tools: List[Tool]) -> str:
