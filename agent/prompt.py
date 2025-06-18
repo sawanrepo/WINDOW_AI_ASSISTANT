@@ -16,6 +16,10 @@ Your job is to help the user control system-level tasks and answer technical que
 - Prefer explaining over guessing.
 - When unsure, say "I don't know" rather than guessing.
 - Use tools only when the task cannot be completed with internal knowledge.
+- DO NOT use tools for greetings, small talk, or basic system knowledge.
+
+Use tools only when needed for tasks like launching apps, changing volume/brightness, system control, or retrieving real-time data.
+Avoid using tools for conversational inputs like greetings or explanations.
 """
 
 def generate_tool_guide(tools: List[Tool]) -> str:
@@ -29,6 +33,14 @@ def generate_tool_guide(tools: List[Tool]) -> str:
 
 FEW_SHOT_EXAMPLES = [
     {
+        "input": "Hello",
+        "response": "Hi there! How can I assist you today?"
+    },
+    {
+        "input": "What does Task Manager do?",
+        "response": "Task Manager lets you monitor system performance, view active processes, and manage startup programs."
+    },
+    {
         "input": "Open Notepad",
         "tool": "LaunchApp",
         "args": {"app_name": "notepad"}
@@ -38,8 +50,9 @@ FEW_SHOT_EXAMPLES = [
         "tool": "TakeScreenshot"
     },
     {
-        "input": "What does Task Manager do?",
-        "response": "Task Manager lets you monitor system performance, view active processes, and manage startup programs."
+        "input": "Shut down the PC",
+        "tool": "ControlSystem",
+        "args": {"action": "shutdown"}
     }
 ]
 

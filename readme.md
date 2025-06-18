@@ -1,6 +1,6 @@
 # 🪟 Windows Assistant — Your AI-Powered Desktop Agent
 
-A smart, local-first Windows assistant powered by **Hugging Face-hosted LLMs**, **LangGraph**, and **LangChain tools** — built with Python and a simple GUI in **Tkinter**.
+A smart, local-first Windows assistant powered by **Gemini**, **LangGraph**, and **LangChain tools** — built with Python and a simple GUI in **Tkinter**.
 
 ---
 
@@ -9,7 +9,7 @@ A smart, local-first Windows assistant powered by **Hugging Face-hosted LLMs**, 
 | Category              | Capabilities                                                                 |
 |-----------------------|------------------------------------------------------------------------------|
 | 💻 System Interaction | Launch installed apps, control brightness/volume, shutdown/restart system   |
-| 🧠 AI Intelligence     | Chat with an LLM (via Hugging Face API) using ReAct + tools                 |
+| 🧠 AI Intelligence     | Chat with an LLM (via Gemini API) using ReAct + tools                 |
 | 📸 Screenshots         | Take and auto-name screenshots like `ss_2025-06-06_1930.png`                |
 | 🔋 System Info         | Get CPU, RAM, battery stats                                                 |
 | 🌐 Web Tooling         | Use Tavily API (or similar) for online search queries                       |
