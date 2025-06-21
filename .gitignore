@@ -1,3 +1,4 @@
 .env
 venv/
 __pycache__/
+speech/vosk-model-small-en-us-0.15/
