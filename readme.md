@@ -31,6 +31,11 @@ windows_assistant/
 │ ├── schema.py #arguments schemas for tool.
 │ └── prompt.py # ReAct-style prompt templates
 │  
+├── speech/
+│ ├──model_name #keep model folder here (model for stt(speech to text))
+│ ├──__init__.py 
+│ ├──stt.py #t speech to text(using Vosk)
+│ ├──tts.py # text to speech (using AWS Polly)
 │
 ├── core/
 │ ├── app_launcher.py # Open Start Menu apps
@@ -70,7 +75,10 @@ pip install -r requirements.txt
 ```
 ### 4. Set Up Environment Variables
 ```bash 
-cp .env.template .env # On Windows: copy .env.template .env
+# Windows
+copy .env.template .env
+# macOS/Linux
+cp .env.template .env
 ```
 #### Then open .env and fill in the required credentials or keys.
 
@@ -100,3 +108,22 @@ The assistant will either launch the app or respond conversationally.
 * `Use tools like launch_app, take_screenshot, or search_web`
 
 * `Decide on-the-fly using reasoning before calling a tool`
+
+## 💬 Voice Interaction Flow
+### 🗣️ Speech-to-Text (STT)
+* `Uses Vosk for local, offline voice recognition.`
+
+* `Converts spoken queries to text.`
+
+* `Fast and works without internet.`
+
+* `Requires you to download a Vosk model:`
+### 🔊 Text-to-Speech (TTS)
+* `Uses AWS Polly to synthesize natural-sounding speech.`
+
+* `You can change the voice (e.g., Joanna, Matthew) or use Neural engine.`
+
+* `TTS response is streamed and played instantly using simpleaudio.`
+
+## 👨‍💻 Author
+Built by Sawan Kumar . Contributions welcome!
