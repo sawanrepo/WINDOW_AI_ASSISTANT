@@ -4,7 +4,7 @@ import os
 import sys
 import json
 
-model_path = os.path.join(os.path.dirname(__file__), "vosk-model-small-en-us-0.15")
+model_path = os.path.join(os.path.dirname(__file__), "vosk-model-en-in-0.5")
 if not os.path.exists(model_path):
     print("❌ Vosk model not found! Download and extract to:", model_path) # dwonload from https://alphacephei.com/vosk/models
     sys.exit(1)
