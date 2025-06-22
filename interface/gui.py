@@ -4,6 +4,7 @@ import threading
 
 from agent.graph import winora_agent, system_prompt
 from langchain_core.messages import HumanMessage, SystemMessage
+from speech import speak, listen  
 
 
 class WinoraGUI:
@@ -18,13 +19,17 @@ class WinoraGUI:
         self.chat_display.pack(padx=10, pady=10)
 
         # Input field
-        self.user_input = tk.Entry(root, width=70, font=("Arial", 12))
+        self.user_input = tk.Entry(root, width=60, font=("Arial", 12))
         self.user_input.pack(side=tk.LEFT, padx=(10, 0), pady=(0, 10))
         self.user_input.bind("<Return>", self.send_message)
 
         # Send button
         self.send_button = tk.Button(root, text="Send", command=self.send_message, width=10)
-        self.send_button.pack(side=tk.LEFT, padx=(5, 10), pady=(0, 10))
+        self.send_button.pack(side=tk.LEFT, padx=(5, 5), pady=(0, 10))
+
+        # Mic button
+        self.mic_button = tk.Button(root, text="🎤 Speak", command=self.listen_and_send, width=10)
+        self.mic_button.pack(side=tk.LEFT, padx=(0, 10), pady=(0, 10))
 
         self.chat_history = []  # To keep track of last N messages
 
@@ -38,7 +43,6 @@ class WinoraGUI:
 
     def get_response(self, user_text):
         try:
-            # Inject system message on first turn only
             if not self.chat_history:
                 self.chat_history.append(SystemMessage(content=system_prompt))
 
@@ -52,13 +56,27 @@ class WinoraGUI:
             response = latest_msg.content if hasattr(latest_msg, "content") else str(latest_msg)
         except Exception as e:
             response = f"[Error] {str(e)}"
+
         self.append_chat("Winora", response)
+        threading.Thread(target=speak, args=(response,), daemon=True).start()
 
     def append_chat(self, speaker, message):
         self.chat_display.config(state='normal')
         self.chat_display.insert(tk.END, f"{speaker}: {message}\n\n")
         self.chat_display.config(state='disabled')
         self.chat_display.yview(tk.END)
+
+    def listen_and_send(self):
+        def task():
+            self.append_chat("Winora", "🎙️ Listening...")
+            text = listen().strip()
+            if text and text.lower() not in ["", "didn't catch that clearly.", "mic error.", "error recognizing speech."]:
+                self.append_chat("You", text)
+                self.user_input.delete(0, tk.END)
+                threading.Thread(target=self.get_response, args=(text,), daemon=True).start()
+            else:
+                self.append_chat("Winora", "❌ Didn't hear you clearly. Please try again.")
+        threading.Thread(target=task, daemon=True).start()
 
 
 def launch_gui():
