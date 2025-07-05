@@ -125,5 +125,7 @@ The assistant will either launch the app or respond conversationally.
 
 * `TTS response is streamed and played instantly using simpleaudio.`
 
+## demo image 
+![Demo Screenshot](demo.png)
 ## 👨‍💻 Author
 Built by Sawan Kumar . Contributions welcome!
