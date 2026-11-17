@@ -11,8 +11,10 @@ class AgentState(TypedDict):
     messages: Annotated[list, add_messages]
 
 # Initialize Gemini LLM
+import os
+model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
+    model=model_name,
     temperature=0.3,
     max_output_tokens=512,
     google_api_key=GOOGLE_API_KEY,

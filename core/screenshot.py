@@ -8,25 +8,37 @@ import threading
 import time
 
 def flash_screen():
-    root = tk.Tk()
-    root.attributes("-fullscreen", True)
-    root.attributes("-topmost", True)
-    root.configure(background='white')
-    root.attributes("-alpha", 0.3) 
-    threading.Timer(0.1, root.destroy).start()
-    root.mainloop()
+    try:
+        root = tk.Tk()
+        root.attributes("-fullscreen", True)
+        root.attributes("-topmost", True)
+        root.configure(background='white')
+        root.attributes("-alpha", 0.3)
+        # Safely schedule destroy on the Tkinter mainloop thread instead of a worker thread
+        root.after(100, root.destroy)
+        root.mainloop()
+    except Exception:
+        pass
 
 def take_screenshot_tool():
     try:
-        flash_thread = threading.Thread(target=flash_screen)
+        # Launch flash as a daemon thread so it never blocks process termination
+        flash_thread = threading.Thread(target=flash_screen, daemon=True)
         flash_thread.start()
         time.sleep(0.15)
-        user_profile = os.environ["USERPROFILE"]
+
+        user_profile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
         screenshots_dir = os.path.join(user_profile, "OneDrive", "Pictures", "Screenshots")
         if not os.path.exists(screenshots_dir):
             screenshots_dir = os.path.join(user_profile, "Pictures", "Screenshots")
 
-        os.makedirs(screenshots_dir, exist_ok=True)
+        try:
+            os.makedirs(screenshots_dir, exist_ok=True)
+        except Exception:
+            # Fallback to local screenshots folder if user profile pictures is restricted
+            screenshots_dir = os.path.join(os.getcwd(), "screenshots")
+            os.makedirs(screenshots_dir, exist_ok=True)
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         filename = f"Screenshot_{timestamp}.png"
         save_path = os.path.join(screenshots_dir, filename)

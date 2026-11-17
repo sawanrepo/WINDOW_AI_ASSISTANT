@@ -46,7 +46,7 @@ FEW_SHOT_EXAMPLES = [
     {
         "input": "Open Notepad",
         "tool": "LaunchApp",
-        "args": {"app_name": "notepad"}
+        "args": {"name": "notepad"}
     },
     {
         "input": "Take a screenshot",

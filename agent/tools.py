@@ -19,16 +19,24 @@ def web_search(query: str):
 def system_info_wrapper(args):
     if isinstance(args, list):
         return get_system_status(args)
-    return get_system_status(args.requested)
+    if isinstance(args, dict):
+        return get_system_status(args.get("requested", []))
+    if hasattr(args, "requested"):
+        return get_system_status(args.requested)
+    return get_system_status([str(args)])
 
 # App launcher wrapper
 def launch_app_wrapper(args):
     if isinstance(args, str):
         name = args
     elif isinstance(args, dict):
-        name = args.get("name")
-    else:
+        name = args.get("name") or args.get("app_name")
+    elif hasattr(args, "name"):
         name = args.name
+    elif hasattr(args, "app_name"):
+        name = args.app_name
+    else:
+        name = str(args)
     return launch_app(name)
 
 def safe_web_search_wrapper(args):
